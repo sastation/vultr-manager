@@ -1,2 +1,2 @@
 # vultr-manager
-manage virtual server via virtual api
+manage virtual server via api of vultr.com
