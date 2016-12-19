@@ -25,6 +25,8 @@ class VultrManager():
         self.APIKEY = {'API-KEY': conf['key']}
         self.SNAPSHOTID = conf['snapshotid']
         self.APIURL = conf['apiurl']
+        self.OSID = conf['os']
+        self.PAY = conf['pay']
 
     def listOS(self):
         url = self.APIURL + "/os/list"
@@ -61,7 +63,15 @@ class VultrManager():
         url = self.APIURL + "/server/list"
         res = requests.get(url, headers = self.APIKEY, proxies = self.PROXIES)
         if mode == "p":
-            print "Servers: ", json.dumps(res.json(), sort_keys=True, indent=2)
+            servers = res.json()
+            for server in servers:
+                serverid = server
+                hostname = servers[serverid]["label"]
+                location = servers[serverid]["location"]
+                ip = servers[serverid]["main_ip"]
+                status = servers[serverid]["status"]
+                state = servers[serverid]["server_state"]
+                print ("%s, %s, %s, %s, %s, %s") % (hostname, serverid, ip, status, state, location)
         else:
             return res.json()
 
@@ -91,8 +101,8 @@ class VultrManager():
         name = hostGroup + "-" + str(mid)
         argvs = {
             "DCID": self.LOCATION, 
-            "OSID": os, # default 215: Ubuntu 16.04 x64
-            "VPSPLANID": 29, # $5/month
+            "OSID": self.OSID, 
+            "VPSPLANID": self.PAY, 
             "SCRIPTID": self.SCRIPTID,
             "SSHKEYID": self.SSHKEYID,
             "hostname": name,
@@ -162,7 +172,7 @@ class VultrManager():
         argvs = {
             "DCID": self.LOCATION, 
             "OSID": 164, # 164: snapshot 
-            "VPSPLANID": 29, # $5/month
+            "VPSPLANID": self.PAY, 
             "hostname": name,
             "label": name,
             "SNAPSHOTID": "1d358569e8bc1"  # 1d358569e8bc1: U16.04-BBR
@@ -181,7 +191,7 @@ class VultrManager():
     def reinstallServer(self, mid):
         url = "https://api.vultr.com/v1/server/os_change"
         serverId, hostname = self.getServerID(mid)
-        data = {"SUBID": serverId, "OSID": 160} # 160 is u14.04-x64, 215 is u16.04-x64
+        data = {"SUBID": serverId, "OSID": self.OSID} 
         res = requests.post(url, headers = self.APIKEY, data = data, proxies = self.PROXIES)
         if res.status_code == 200:
             log = hostname + " reinstalled"
