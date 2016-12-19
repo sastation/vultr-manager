@@ -1,0 +1,19 @@
+{
+    "apiurl": "https://api.vultr.com/v1",
+    "location": 12, 
+    "_comment": "12:sjo-ca-us, 5: lax-ca-us, 4: wa-us, 40: sgp-sgp, 25: tokyo, 19: sydney",
+    "sshid": "<sshid>",
+    "_comment": "your ssh key id",
+    "scriptid": "<scriptid>",
+    "_comment": "your script id",
+    "proxy": "http://127.0.0.1:8081",
+    "_comment": "proxy ",
+    "key": "<api key>",
+    "_comment": "your api key",
+    "pay": 29, 
+    "_comment": "29: 5/month",
+    "os": 215, 
+    "_comment": "164: snapshot, 215: u164.04-x64, 164: snapshot",
+    "snapshotid": "<snapshotid>",
+    "_comment": "your snapshot id"
+}
