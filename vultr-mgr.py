@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # coding: utf-8
 
 import sys, requests, socket
@@ -80,7 +81,8 @@ class VultrManager():
         for server in servers:
             serverId = server
             hostname = servers[serverId]["label"]
-            hostId = hostname.split("-")[-1]
+            #hostId = hostname.split("-")[-1]
+            hostId = hostname[hostname.find("-")+1:]
             if hostId == mid:
                 for info in servers[serverId]:
                     print info + "\t" + str(servers[serverId][info])
@@ -90,7 +92,8 @@ class VultrManager():
         for server in servers:
             serverId = server
             hostname = servers[serverId]["label"]
-            hostId = hostname.split("-")[-1]
+            #hostId = hostname.split("-")[-1]
+            hostId = hostname[hostname.find("-")+1:]
             if hostId == mid:
                 return serverId, hostname
         return None, None
@@ -175,7 +178,7 @@ class VultrManager():
             "VPSPLANID": self.PAY, 
             "hostname": name,
             "label": name,
-            "SNAPSHOTID": "1d358569e8bc1"  # 1d358569e8bc1: U16.04-BBR
+            "SNAPSHOTID": self.SNAPSHOTID
         }
 
         res = requests.post(url, headers = self.APIKEY, data = argvs, proxies = self.PROXIES)
