@@ -19,7 +19,8 @@ class VultrManager():
         content = ''.join(lines)
         fs.close()
         conf = json.loads(content)
-        self.PROXIES = {"http": conf['proxy'], "https": conf['proxy']}
+        #self.PROXIES = {"http": conf['proxy'], "https": conf['proxy']}
+        self.PROXIES = {}
         self.LOCATION = conf['location']
         self.SSHKEYID = conf['sshid']
         self.SCRIPTID = conf['scriptid']
@@ -192,18 +193,31 @@ class VultrManager():
         return serverId
 
     def reinstallServer(self, mid):
-        url = "https://api.vultr.com/v1/server/os_change"
+        url = self.APIURL + "/server/os_change"
         serverId, hostname = self.getServerID(mid)
         data = {"SUBID": serverId, "OSID": self.OSID} 
         res = requests.post(url, headers = self.APIKEY, data = data, proxies = self.PROXIES)
         if res.status_code == 200:
             log = hostname + " reinstalled"
             print log
-            result = True
         else:
             log = "Failed, status code: " + str(res.status_code)
             print log
         return res
+
+    def restoreSnapshot(self, mid):
+       url = self.APIURL + "/server/restore_snapshot"
+       serverId, hostname = self.getServerID(mid)
+       data = {"SUBID": serverId, "SNAPSHOTID": self.SNAPSHOTID}
+       res = requests.post(url, headers = self.APIKEY, data = data, proxies = self.PROXIES)
+       if res.status_code == 200:
+            log = hostname + " restored from snapshot " + self.SNAPSHOTID
+            print log
+       else:
+            log = "Failed, status code: " + str(res.status_code)
+            print log
+       return res
+
 
 # Main funciton
 if __name__ == "__main__":
@@ -235,28 +249,25 @@ if __name__ == "__main__":
             action = sys.argv[2]
         except IndexError:
             action = 'list'
+        else:
+            mid = sys.argv[3]
 
         if action == "list":
             vultrManager.listServers('p')
         elif action == "info":
-            mid = sys.argv[3]
             vultrManager.serverInfo(mid)
         elif action == "create":
-            mid = sys.argv[3] 
             vultrManager.createServer(mid)
         elif action == "destroy":
-            mid = sys.argv[3] 
             vultrManager.destroyServer(mid)
         elif action == "reboot":
-            mid = sys.argv[3] 
             vultrManager.rebootServer(mid)
         elif action == "create2":
-            mid = sys.argv[3]
             vultrManager.createServerFromSnapshot(mid)
         elif action == "reinstall":
-            mid = sys.argv[3]
             vultrManager.reinstallServer(mid)
-    
+        elif action == "restore":
+            vultrManager.restoreSnapshot(mid)
     else:
         print "Wrong command."
 
